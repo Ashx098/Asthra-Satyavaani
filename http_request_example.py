@@ -13,16 +13,19 @@ def fetch_mint(url, reqType):
         soup = BeautifulSoup(response.text, "html.parser")
 
         if reqType == "top8":
-            breaking_news_script = None
-            for script in soup.find_all("script", type="application/ld+json"):
-                if '"@type":"ItemList"' in script.text:
-                    breaking_news_script = script
-                    break
-            if breaking_news_script:
-                data = json.loads(breaking_news_script.string)
-                breaking_news_urls = [item["url"] for item in data.get("itemListElement", [])]
+                breaking_news_urls = []
+                for script in soup.find_all("script", type="application/ld+json"):
+                    try:
+                        data = json.loads(script.string)
+                        if isinstance(data, dict) and data.get("@type") == "ItemList":
+                            for item in data.get("itemListElement", []):
+                                url = item.get("url")
+                                if url and url.startswith("https://www.livemint.com/"):
+                                    breaking_news_urls.append(url)
+                    except Exception:
+                        continue
                 return breaking_news_urls
-            return []
+
 
         elif reqType == "news":
             page_title = soup.title.string.strip()
