@@ -11,7 +11,7 @@ from keep_alive import keep_alive
 keep_alive()
 
 SLEEP_BETWEEN_GROQ = 180   # seconds between GROQ requests
-SCRAPE_INTERVAL = 1500     # every 15 minutes
+#SCRAPE_INTERVAL = 1500     # every 15 minutes
 
 # Replace 'YOUR_BOT_TOKEN' with your actual bot token
 load_dotenv()
@@ -41,36 +41,38 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text('Hello! I am your Telegram bot.')
 
 async def latest(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    url = "https://www.livemint.com/"
-    print("\n🔍 Fetching latest links...")
-    latest_links = set(fetch_mint(url, reqType="top8") or [])
+    while(True):
+        # Fetch the latest links
+        url = "https://www.livemint.com/"
+        print("\n🔍 Fetching latest links...")
+        latest_links = set(fetch_mint(url, reqType="top8") or [])
 
-    new_links = latest_links - processed_links
-    if new_links:
-        print(f"✅ {len(new_links)} new links found.")
-        for link in new_links:
-            if link not in seen_links:
-                seen_links[link] = time.time()
-                summary_queue.append(link)
-    else:
-        print("No new links found.")
+        new_links = latest_links - processed_links
+        if new_links:
+            print(f"✅ {len(new_links)} new links found.")
+            for link in new_links:
+                if link not in seen_links:
+                    seen_links[link] = time.time()
+                    summary_queue.append(link)
+        else:
+            print("No new links found.")
 
-    # Process the queue (rate-limited)
-    while summary_queue:
-        link = summary_queue.popleft()
-        if link not in processed_links:
-            title, summary = summarize_and_print(link)
-            safe_title = escape_markdown(title)
-            safe_summary = escape_markdown(summary)
-            full_message = f"🛡️ *Asthra Alert*\n\n*📰 {safe_title}*\n\n{safe_summary}"
-            chunks = [full_message[i:i+3900] for i in range(0, len(full_message), 3900)]
+    # Process the queue (rate-limited)  
+        while summary_queue:
+            link = summary_queue.popleft()
+            if link not in processed_links:
+                title, summary = summarize_and_print(link)
+                safe_title = escape_markdown(title)
+                safe_summary = escape_markdown(summary)
+                full_message = f"🛡️ *Asthra Alert*\n\n*📰 {safe_title}*\n\n{safe_summary}"
+                chunks = [full_message[i:i+3900] for i in range(0, len(full_message), 3900)]
 
-            for chunk in chunks:
-                await update.message.reply_text(chunk, parse_mode="MarkdownV2")
-            time.sleep(SLEEP_BETWEEN_GROQ)
+                for chunk in chunks:
+                    await update.message.reply_text(chunk, parse_mode="MarkdownV2")
+                time.sleep(SLEEP_BETWEEN_GROQ)
 
-    print("🕒 Waiting for 15 minutes before next fetch...\n")
-    time.sleep(SCRAPE_INTERVAL)
+    #print("🕒 Waiting for 15 minutes before next fetch...\n")
+    #time.sleep(SCRAPE_INTERVAL)
 
 
 def main():
