@@ -10,7 +10,7 @@ from collections import deque
 from keep_alive import keep_alive
 keep_alive()
 
-SLEEP_BETWEEN_GROQ = 10   # seconds between GROQ requests
+SLEEP_BETWEEN_GROQ = 60   # seconds between GROQ requests
 #SCRAPE_INTERVAL = 1500     # every 15 minutes
 
 # Replace 'YOUR_BOT_TOKEN' with your actual bot token
