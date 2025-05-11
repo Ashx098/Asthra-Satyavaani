@@ -20,9 +20,9 @@ if not BOT_TOKEN or not ASTHRA_CHANNEL_ID:
     raise ValueError("Missing BOT_TOKEN or ASTHRA_CHANNEL_ID in environment")
 
 # Constants
-SLEEP_BETWEEN_GROQ = int(os.getenv("SLEEP_BETWEEN_GROQ", 400))
-FETCH_INTERVAL = int(os.getenv("FETCH_INTERVAL", 1800))
-NO_UPDATE_NOTIFY_GAP = int(os.getenv("NO_UPDATE_NOTIFY_GAP", 3600))
+SLEEP_BETWEEN_GROQ = int(os.getenv("SLEEP_BETWEEN_GROQ", 900))
+FETCH_INTERVAL = int(os.getenv("FETCH_INTERVAL", 2000))
+NO_UPDATE_NOTIFY_GAP = int(os.getenv("NO_UPDATE_NOTIFY_GAP", 4000))
 HOME_URL = "https://www.livemint.com/"
 
 # Globals
