@@ -77,7 +77,7 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def post_to_channel(bot, message: str, image_url: str = None):
     try:
-        message = escape_markdown(message)
+        # message = escape_markdown(message)
         if image_url:
             await bot.send_photo(
                 chat_id=ASTHRA_CHANNEL_ID,
