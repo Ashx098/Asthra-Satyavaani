@@ -3,6 +3,8 @@ import os
 import re
 import time
 import asyncio
+import requests
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
@@ -40,6 +42,36 @@ def escape_markdown(text: str) -> str:
     escape_chars = r'_*[]()~`>#+-=|{}.!'
     return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text)
 
+def get_news_image(link):
+    """
+    Extracts a representative image from the news article page.
+    Prioritizes og:image, then twitter:image, then first <img>, then returns None.
+    """
+    try:
+        response = requests.get(link, timeout=10)
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Try Open Graph image
+        og_image = soup.find('meta', property='og:image')
+        if og_image and og_image.get('content'):
+            return og_image['content']
+
+        # Try Twitter card image
+        twitter_image = soup.find('meta', property='twitter:image')
+        if twitter_image and twitter_image.get('content'):
+            return twitter_image['content']
+
+        # Fallback to first visible <img> on page
+        for img in soup.find_all('img'):
+            src = img.get('src')
+            if src and src.startswith("http"):
+                return src
+
+    except Exception as e:
+        print(f"[IMAGE ERROR] Could not fetch image from {link}: {e}")
+
+    return None
+
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
     logging.error("Exception while handling an update:", exc_info=context.error)
 
@@ -49,11 +81,23 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def latest(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("✅ Real-time Updates are being automatically posted to our channel.\nJoin: https://t.me/asthrasatyavaani")
 
-async def post_to_channel(bot, message: str):
+async def post_to_channel(bot, message: str, image_url: str = None):
     try:
-        await bot.send_message(chat_id=ASTHRA_CHANNEL_ID, text=message, parse_mode="MarkdownV2")
+        if image_url:
+            await bot.send_photo(
+                chat_id=ASTHRA_CHANNEL_ID,
+                photo=image_url,
+                caption=message[:1024],  # Telegram caption limit
+                parse_mode="MarkdownV2"
+            )
+        else:
+            await bot.send_message(
+                chat_id=ASTHRA_CHANNEL_ID,
+                text=message,
+                parse_mode="MarkdownV2"
+            )
     except Exception as e:
-        logging.error(f"Failed to post to channel: {e}")
+        print(f"❌ Error posting to Telegram: {e}")
 
 # Background fetch + post loop
 async def news_broadcast_loop(app):
