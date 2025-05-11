@@ -40,7 +40,7 @@ logging.basicConfig(
 
 def escape_markdown(text: str) -> str:
     escape_chars = r'_*[]()~`>#+-=|{}.!'
-    return re.sub(f'([{re.escape(escape_chars)}])', r'\\1', text)
+    return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text)
 
 def get_news_image(link):
     """
@@ -77,7 +77,6 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
 async def post_to_channel(bot, message: str, image_url: str = None):
     try:
-        # message = escape_markdown(message)
         if image_url:
             await bot.send_photo(
                 chat_id=ASTHRA_CHANNEL_ID,
@@ -161,7 +160,7 @@ async def background_news_job(context: ContextTypes.DEFAULT_TYPE):
 
     if not new_links:
         if current_time - last_sent_time >= NO_UPDATE_NOTIFY_GAP:
-            await post_to_channel(bot, "🔕 No breaking news in the last 15 minutes\. Stay tuned\.")
+            await post_to_channel(bot, escape_markdown("🔕 No breaking news in the last 15 minutes. Stay tuned."))
             last_sent_time = current_time
         return
     logging.info(f"🧠 New links found: {len(new_links)}\n***************************************************************************************\n\n")
