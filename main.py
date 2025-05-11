@@ -40,7 +40,7 @@ logging.basicConfig(
 
 def escape_markdown(text: str) -> str:
     escape_chars = r'_*[]()~`>#+-=|{}.!'
-    return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text)
+    return re.sub(f'([{re.escape(escape_chars)}])', r'\\1', text)
 
 def get_news_image(link):
     """
@@ -161,7 +161,7 @@ async def background_news_job(context: ContextTypes.DEFAULT_TYPE):
 
     if not new_links:
         if current_time - last_sent_time >= NO_UPDATE_NOTIFY_GAP:
-            await post_to_channel(bot, "🔕 No breaking news in the last 30 minutes. Stay tuned.")
+            await post_to_channel(bot, "🔕 No breaking news in the last 30 minutes\. Stay tuned\.")
             last_sent_time = current_time
         return
     logging.info(f"🧠 New links found: {len(new_links)}\n***************************************************************************************\n\n")
