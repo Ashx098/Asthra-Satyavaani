@@ -3,6 +3,7 @@ import os
 import re
 import time
 import asyncio
+import logging
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -68,7 +69,7 @@ def get_news_image(link):
                 return src
 
     except Exception as e:
-        print(f"[IMAGE ERROR] Could not fetch image from {link}: {e}")
+        logging.error(f"[IMAGE ERROR] Could not fetch image from {link}: {e}")
 
     return None
 
@@ -125,16 +126,16 @@ async def news_broadcast_loop(app):
         for link in new_links:
             seen_links[link] = current_time
             title, summary = await summarize_and_print(link)
-
             if not title or not summary:
                 logging.warning(f"⚠️ Skipping empty or failed summary for: {link}")
                 continue
+            image_url = get_news_image(link)
 
             full_message = f"🛡️ *Asthra Alert*\n\n*📰 {escape_markdown(title)}*\n\n{escape_markdown(summary)}"
             chunks = [full_message[i:i + 3900] for i in range(0, len(full_message), 3900)]
 
             for chunk in chunks:
-                await post_to_channel(app.bot, chunk)
+                await post_to_channel(app.bot, chunk, image_url if chunk == chunks[0] else None)  # Only send image for first chunk (g)
                 logging.info(f"✅ Posted chunk for: {title[:60]}...")
 
             processed_links[link] = current_time

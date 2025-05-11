@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import json
 import time
+import logging
 from collections import deque
 from groq_summarizer import summarize_title_and_text  # Your GROQ summarizer function
 
@@ -12,7 +13,7 @@ def fetch_mint(url, reqType):
     try:
         response = requests.get(url)
         print(f"📥 Status Code: {response.status_code}")
-        loggin.alert(f"📥 Status Code: {response.status_code}")
+        logging.info(f"📥 Status Code: {response.status_code}")
         soup = BeautifulSoup(response.text, "html.parser")
 
         if reqType == "top8":
