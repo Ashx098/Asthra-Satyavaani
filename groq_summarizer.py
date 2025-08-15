@@ -10,7 +10,7 @@ GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 def summarize_title_and_text(title: str, text: str) -> str:
     """
-    Summarize the following content in 4-6 bullet points, clearly formatted, using plain language and bold key names/locations if needed..
+    Summarize the following content in strictly 4 sentences, clearly formatted, using plain language and bold key names/locations if needed..
     Args:
         title (str): The title of the content.
         text (str): The main text to summarize.
@@ -21,7 +21,7 @@ def summarize_title_and_text(title: str, text: str) -> str:
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json"
     }
-    prompt = f"Summarize the following content.\nTitle: {title}\nText: {text}"
+    prompt = f"Summarize the following content in a maximum of 4 sentences.\nTitle: {title}\nText: {text}"
     data = {
         "model": "llama3-8b-8192",
         "messages": [

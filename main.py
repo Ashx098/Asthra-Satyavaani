@@ -111,10 +111,14 @@ async def background_news_job(context: ContextTypes.DEFAULT_TYPE):
             logging.error(f"❌ Failed to process {link}: {e}")
 
 def main():
+    """Main function to run the bot."""
     keep_alive()
+    
+    # Create the application
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_error_handler(error_handler)
 
+    # Add the job to the job queue
     app.job_queue.run_repeating(
         background_news_job,
         interval=FETCH_INTERVAL,
@@ -122,6 +126,8 @@ def main():
         job_kwargs={"max_instances": 1}
     )
 
+    # Run the bot
+    logging.info("🚀 Starting Asthra Satyavaani Bot...")
     app.run_polling()
 
 if __name__ == '__main__':
